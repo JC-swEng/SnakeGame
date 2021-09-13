@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="680" height="550"></canvas>
+
+<script>
+	// JavaScript code goes here
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var ballRadius = 7;
+var x = canvas.width/2;
+var y = canvas.height/2;
+var dx = -7;
+var dy = 0;
+
+var rightPressed = false;
+var leftPressed = false;
+var upPressed = false;
+var downPressed = false;
+
+var body = [];
+var length= 6;
+var speed = 1;
+for(var b=0; b < length; b++) {
+    body[b] = { x: x+ (b+1)*ballRadius, y: y };    // initial body positions
+}
+
+var foodX = 40;
+var foodY = canvas.height/2;
+
+//var lives = 3;
+/*
+function drawHead() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "C300FF";
+    ctx.fill();
+    ctx.closePath();
+}
+*/
+function drawBody() {
+    for(var b=length-1; b >= 0; b--) {
+	if(b==0){
+             var bodyX = x;
+             var bodyY = y;
+             body[b].x = bodyX;
+             body[b].y = bodyY;
+             ctx.beginPath();
+	     ctx.arc(bodyX, bodyY, ballRadius, 0, Math.PI*2);
+   	     ctx.fillStyle = "#C103FC";
+             ctx.fill();
+             ctx.closePath();
+	}else{
+             var bodyX = body[b-1].x;
+             var bodyY = body[b-1].y;
+             body[b].x = bodyX;
+             body[b].y = bodyY;
+             ctx.beginPath();
+	     ctx.arc(bodyX, bodyY, ballRadius, 0, Math.PI*2);
+   	     ctx.fillStyle = "#07C1FA";
+             ctx.fill();
+             ctx.closePath();
+	}
+    }
+}
+
+function drawFood() {
+    ctx.beginPath();
+    ctx.arc(foodX, foodY, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#09BA3B";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //drawHead();
+    drawBody();
+    drawFood(); 
+    drawLength();
+      //drawLives();
+
+    if(y >= canvas.height-ballRadius*0.25 || y <= ballRadius*0.25 || x >= canvas.width-ballRadius*0.55 || x <= ballRadius*0.55 ){
+          //if head hits boundaries
+   	     alert("GAME OVER");
+    	     document.location.reload();
+	     clearInterval(interval);
+
+    }
+
+    for(var i = 3; i < length; i++){
+	if(Math.abs(x - body[i].x) <= ballRadius && Math.abs(y - body[i].y) <= ballRadius){
+          //if head hits body part
+   	     alert("GAME OVER");
+    	     document.location.reload();
+	     clearInterval(interval);	    
+	}
+    }
+
+    if(Math.abs(x-foodX) <= ballRadius && Math.abs(y-foodY) <= ballRadius){ 
+	  //change food positions after eating
+	foodX = 2*ballRadius + Math.random()*(canvas.width-4*ballRadius);
+	foodY = 2*ballRadius + Math.random()*(canvas.height-4*ballRadius);
+	length++;
+	speed = Math.floor(length/5);
+	body.push({x: 0 , y: 0});
+	if(length == 100) {
+	     alert("YOU WIN, CONGRATULATIONS!");
+	     document.location.reload();
+	     clearInterval(interval);
+	}
+     }
+
+   if(rightPressed && dx >= 0) {
+      dx = (ballRadius+speed*0.5-0.5);
+      dy = 0;
+   }else if(leftPressed && dx <= 0) {
+      dx = -(ballRadius+speed*0.5-0.5);
+      dy = 0;
+   }else if(upPressed && dy <= 0) {
+      dx = 0;
+      dy = -(ballRadius+speed*0.5-0.5);
+   }else if(downPressed && dy >= 0) {
+      dx = 0;
+      dy = (ballRadius+speed*0.5-0.5);
+   }
+
+   x += dx;
+   y += dy; 
+}
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = true;
+    } else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = true;
+    } else if(e.key == "Up" || e.key == "ArrowUp") {
+        upPressed = true;
+    } else if(e.key == "Down" || e.key == "ArrowDown") {
+        downPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.key == "Right" || e.key == "ArrowRight") {
+        rightPressed = false;
+    } else if(e.key == "Left" || e.key == "ArrowLeft") {
+        leftPressed = false;
+    } else if(e.key == "Up" || e.key == "ArrowUp") {
+        upPressed = false;
+    } else if(e.key == "Down" || e.key == "ArrowDown") {
+        downPressed = false;
+    }
+}
+
+function drawLength() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#DD0000";
+    ctx.fillText("Length: "+length +"   Speed: " + speed, 8, 20);
+}
+/*
+function drawLives() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+}
+*/
+
+var interval = setInterval(draw, 40);
+
+	// JavaScript code goes here
+</script>
+
+</body>
+</html>
